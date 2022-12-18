@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR100, ImageFolder 
-import torchvision.transforms as transforms
+import torchvision.transforms as transforms, Lambda
 
 import clip
 from models import prompters
@@ -145,13 +145,18 @@ def main():
     print(f'template: {template}')
 
     cifar_train_dataset = CIFAR100(args.root, transform=preprocess,
-                             download=True, train=True)
+                             download=True, train=True, target_transform = transforms.Lambda(lambda y: torch.zeros(100, 
+                             dtype=torch.float).scatter_(dim=0, index=torch.tensor(y), value=1)))
 
     cifar_val_dataset = CIFAR100(args.root, transform=preprocess,
-                           download=True, train=False)
+                           download=True, train=False, target_transform = transforms.Lambda(lambda y: torch.zeros(100, 
+                             dtype=torch.float).scatter_(dim=0, index=torch.tensor(y), value=1)))
 
-    cifar_train_dataset_cutmixed = CutMix(cifar_train_dataset, num_class=100, beta=1.0, prob=0.5, num_mix=2)
-    cifar_val_dataset_cutmixed = CutMix(cifar_val_dataset, num_class=100, beta=1.0, prob=0.5, num_mix=2)   
+    cifar_train_dataset_dummy = CIFAR100(args.root, train=True, download=True, transform=preprocess)
+    cifar_val_dataset_dummy = CIFAR100(args.root, train=False, download=True, transform=preprocess)
+
+    cifar_train_dataset_cutmixed = CutMix(cifar_train_dataset_dummy, num_class=100, beta=1.0, prob=0.5, num_mix=2)
+    cifar_val_dataset_cutmixed = CutMix(cifar_val_dataset_dummy, num_class=100, beta=1.0, prob=0.5, num_mix=2)   
 
     combined_train_dataset = torch.utils.data.ConcatDataset([cifar_train_dataset, cifar_train_dataset_cutmixed])
     combined_train_dataloader = DataLoader(combined_train_dataset, batch_size=args.batch_size, pin_memory=True,
