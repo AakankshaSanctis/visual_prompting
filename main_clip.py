@@ -148,13 +148,13 @@ def main():
     cifar_train_dataset = CIFAR100(args.root, transform=preprocess,
                              download=True, train=True)
 
-    # val_dataset = CIFAR100(args.root, transform=preprocess,
-    #                        download=True, train=False)
+    val_dataset = CIFAR100(args.root, transform=preprocess,
+                           download=True, train=False)
 
     train_dataset = ImageFolder(root = args.train_folder,
                                 transform= preprocess)
-    val_dataset = ImageFolder(root = args.val_folder,
-                                transform= preprocess)
+    # val_dataset = ImageFolder(root = args.val_folder,
+    #                             transform= preprocess)
 
     print(args.batch_size)
     train_loader = DataLoader(train_dataset,
