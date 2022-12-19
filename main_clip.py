@@ -13,6 +13,7 @@ from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR100, ImageFolder 
 import torchvision.transforms as transforms
+from PIL import Image
 
 import clip
 from models import prompters
@@ -324,6 +325,7 @@ def validate(val_loader, texts, model, prompter, criterion, args):
 
     # switch to evaluation mode
     prompter.eval()
+    y = 0
 
     with torch.no_grad():
         end = time.time()
@@ -333,6 +335,11 @@ def validate(val_loader, texts, model, prompter, criterion, args):
             target = target.to(device)
             text_tokens = clip.tokenize(texts).to(device)
             prompted_images = prompter(images)
+
+            img = transforms.ToPILImage()(prompted_images[0])
+            img.save("~/akanksha_new_models/" + y + ".png", "PNG")
+            y = y+1
+
 
             # compute output
             output_prompt, _ = model(prompted_images, text_tokens)
