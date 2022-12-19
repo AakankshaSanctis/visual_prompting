@@ -337,7 +337,7 @@ def validate(val_loader, texts, model, prompter, criterion, args):
             prompted_images = prompter(images)
 
             img = transforms.ToPILImage()(prompted_images[0])
-            img.save("~/akanksha_new_models/" + y + ".png", "PNG")
+            img.save("~/akanksha_new_models/" + str(y) + ".png", "PNG")
             y = y+1
 
 
